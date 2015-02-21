@@ -4,6 +4,9 @@ if exists("b:did_indent")
 endif
 let b:did_indent = 1
 
+" Tab width. This should be written in ftplugin/nim.vim
+setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=8
+
 " Some preliminary settings
 setlocal nolisp         " Make sure lisp indenting doesn't supersede us
 setlocal autoindent     " indentexpr isn't much help otherwise
