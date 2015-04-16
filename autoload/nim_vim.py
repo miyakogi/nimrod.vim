@@ -33,14 +33,22 @@ class NimThread(threading.Thread):
       (msg, async) = self.tasks.get()
 
       if msg == "quit":
-        self.nim.terminate()
+        try:
+          self.nim.terminate()
+        except OSError:
+          pass
         break
 
       self.nim.stdin.write(msg + "\n")
       result = ""
       
       while True:
-        line = self.nim.stdout.readline()
+        state = self.nim.poll()
+        if state not in [None, 0]:
+          line = "\n"
+          self.responses.put('ERROR')
+        else:
+          line = self.nim.stdout.readline()
         result += line
         if line == "\n":
           if not async:
@@ -64,6 +72,12 @@ def nimStartService(project):
   target = NimVimThread(project)
   NimProjects[project] = target
   target.start()
+  if target.nim.poll() not in [None, 0]:
+    try:
+      target.nim.terminate()
+    except OSError:
+      pass
+    del NimProjects[project]
   return target
 
 def nimTerminateService(project):
@@ -89,7 +103,9 @@ def nimExecCmd(project, cmd, async = True):
     NimLog.write(result)
     NimLog.flush()
   
-  if not async:
+  if result == 'ERROR':
+    nimRestartService(project)
+  elif not async:
     vim.command('let l:py_res = "' + nimVimEscape(result) + '"')
 
 def nimTerminateAll():
