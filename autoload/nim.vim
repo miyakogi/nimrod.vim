@@ -111,6 +111,8 @@ fun! NimExec(op) abort
       \ a:op, expand('%:p'), line('.'), col('.')-1, s:CurrentNimFile())
   endif
 
+  let l:py_res = ""
+  let output = ""
   if b:nim_caas_enabled
     exe printf("py nimExecCmd('%s', '%s', False)", b:nim_project_root, cmd)
     let output = l:py_res
