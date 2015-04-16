@@ -1,4 +1,4 @@
-import threading, Queue, subprocess, signal, os
+import threading, Queue, subprocess, os
 
 try:
   import vim
